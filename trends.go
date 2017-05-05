@@ -18,9 +18,9 @@ var (
 	base = "https://trends.google.com/trends/"
 )
 
-func Get(endpoint string, params url.Values) ([]byte, error) {
+func Get(method string, params url.Values) ([]byte, error) {
 	body := []byte{}
-	req, err := http.NewRequest(http.MethodGet, base+endpoint, nil)
+	req, err := http.NewRequest(http.MethodGet, base+method, nil)
 	if err != nil {
 		return body, err
 	}

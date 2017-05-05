@@ -4,29 +4,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"time"
 )
 
-type IOTRequest struct {
+type iotRequest struct {
 	Time            string              `json:"time"`
 	Resolution      string              `json:"resolution"`
 	Locale          string              `json:"locale"`
-	ComparisonItems []IOTComparisonItem `json:"comparisonItem"`
-	Options         IOTOptions          `json:"requestOptions"`
+	ComparisonItems []iotComparisonItem `json:"comparisonItem"`
+	Options         iotOptions          `json:"requestOptions"`
 }
 
-type IOTComparisonItem struct {
+type iotComparisonItem struct {
 	Geo         struct{} `json:"geo"`
 	Restriction struct {
-		Keywords []IOTKeyword `json:"keyword"`
+		Keywords []iotKeyword `json:"keyword"`
 	} `json:"complexKeywordsRestriction"`
 }
 
-type IOTKeyword struct {
+type iotKeyword struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`
 }
 
-type IOTOptions struct {
+type iotOptions struct {
 	Property string `json:"property"`
 	Backend  string `json:"backend"`
 	Category int    `json:"category"`
@@ -34,37 +35,39 @@ type IOTOptions struct {
 
 type IOTResponse struct {
 	Default struct {
-		Timeline []IOTTimelineItem `json:"timelineData"`
+		Timeline []iotTimelineItem `json:"timelineData"`
 	} `json:"default"`
 }
 
-type IOTTimelineItem struct {
-	Time  JSONTime `json:"time"`
+type iotTimelineItem struct {
+	Time  jsonTime `json:"time"`
 	Value []int    `json:"value"`
 }
 
 func InterestOverTime(keywords ...string) (*IOTResponse, error) {
-	token, err := Token(MethodInterestOverTime, keywords...)
+	token, err := token(MethodInterestOverTime, keywords...)
 	if err != nil {
 		return nil, err
 	}
 
-	items := make([]IOTComparisonItem, len(keywords))
+	items := make([]iotComparisonItem, len(keywords))
 	for i, keyword := range keywords {
-		items[i] = IOTComparisonItem{}
-		items[i].Restriction.Keywords = make([]IOTKeyword, 1)
-		items[i].Restriction.Keywords[0] = IOTKeyword{
+		items[i] = iotComparisonItem{}
+		items[i].Restriction.Keywords = make([]iotKeyword, 1)
+		items[i].Restriction.Keywords[0] = iotKeyword{
 			Type:  "BROAD",
 			Value: keyword,
 		}
 	}
 
-	options := IOTOptions{
+	options := iotOptions{
 		Backend: "IZG",
 	}
 
-	req := IOTRequest{
-		Time:            "2012-05-01 2017-05-01",
+	end := time.Now()
+	start := end.AddDate(-5, 0, 0)
+	req := iotRequest{
+		Time:            fmt.Sprintf("%s %s", start.Format("2006-01-02"), end.Format("2006-01-02")),
 		Resolution:      "WEEK",
 		Locale:          "de",
 		ComparisonItems: items,

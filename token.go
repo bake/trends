@@ -6,27 +6,27 @@ import (
 	"net/url"
 )
 
-type TokenWidget struct {
+type tokenWidget struct {
 	ID    string `json:"id"`
 	Type  string `json:"widgetType"`
 	Title string `json:"title"`
 	Token string `json:"token"`
 }
 
-type TokenComparisonItem struct {
+type tokenComparisonItem struct {
 	Geo     string `json:"geo"`
 	Time    string `json:"time"`
 	Keyword string `json:"keyword"`
 }
 
-type TokenComparisonRequest struct {
+type tokenComparisonRequest struct {
 	Category       int                   `json:"category"`
 	Property       string                `json:"property"`
-	ComparisonItem []TokenComparisonItem `json:"comparisonItem"`
+	ComparisonItem []tokenComparisonItem `json:"comparisonItem"`
 }
 
-type TokenComparisonResponse struct {
-	Widgets  []TokenWidget `json:"widgets"`
+type tokenComparisonResponse struct {
+	Widgets  []tokenWidget `json:"widgets"`
 	Keywords []struct {
 		Keyword string `json:"keyword"`
 		Name    string `json:"name"`
@@ -34,10 +34,10 @@ type TokenComparisonResponse struct {
 	} `json:"keywords"`
 }
 
-func Token(id string, keywords ...string) (string, error) {
-	js := TokenComparisonRequest{}
+func token(id string, keywords ...string) (string, error) {
+	js := tokenComparisonRequest{}
 	for _, keyword := range keywords {
-		js.ComparisonItem = append(js.ComparisonItem, TokenComparisonItem{
+		js.ComparisonItem = append(js.ComparisonItem, tokenComparisonItem{
 			Keyword: keyword,
 			Time:    "today 5-y",
 		})
@@ -56,7 +56,7 @@ func Token(id string, keywords ...string) (string, error) {
 		return "", err
 	}
 
-	res := TokenComparisonResponse{}
+	res := tokenComparisonResponse{}
 	if err := json.Unmarshal(body, &res); err != nil {
 		return "", err
 	}
