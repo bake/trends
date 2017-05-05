@@ -33,7 +33,7 @@ type iotOptions struct {
 	Category int    `json:"category"`
 }
 
-type IOTResponse struct {
+type iotResponse struct {
 	Default struct {
 		Timeline []iotTimelineItem `json:"timelineData"`
 	} `json:"default"`
@@ -44,7 +44,7 @@ type iotTimelineItem struct {
 	Value []int    `json:"value"`
 }
 
-func InterestOverTime(keywords ...string) (*IOTResponse, error) {
+func InterestOverTime(keywords ...string) (map[time.Time]int, error) {
 	token, err := token(MethodInterestOverTime, keywords...)
 	if err != nil {
 		return nil, err
@@ -89,9 +89,15 @@ func InterestOverTime(keywords ...string) (*IOTResponse, error) {
 		return nil, err
 	}
 
-	res := IOTResponse{}
+	res := iotResponse{}
 	if err := json.Unmarshal(body, &res); err != nil {
 		return nil, fmt.Errorf("could not unmarshal response: %v", err)
 	}
-	return &res, nil
+
+	list := map[time.Time]int{}
+	for _, item := range res.Default.Timeline {
+		list[item.Time.Time] = item.Value[0]
+	}
+
+	return list, nil
 }
