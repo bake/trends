@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"sort"
 	"time"
 )
 
@@ -35,16 +36,27 @@ type iotOptions struct {
 
 type iotResponse struct {
 	Default struct {
-		Timeline []iotTimelineItem `json:"timelineData"`
+		Timeline iotTimelineItems `json:"timelineData"`
 	} `json:"default"`
 }
 
 type iotTimelineItem struct {
-	Time  jsonTime `json:"time"`
-	Value []int    `json:"value"`
+	Time  timestamp `json:"time"`
+	Value []int     `json:"value"`
 }
 
-func InterestOverTime(keywords ...string) (map[time.Time]int, error) {
+type iotTimelineItems []iotTimelineItem
+
+func (is iotTimelineItems) Len() int           { return len(is) }
+func (is iotTimelineItems) Swap(i, j int)      { is[i], is[j] = is[j], is[i] }
+func (is iotTimelineItems) Less(i, j int) bool { return is[i].Time.Unix() < is[j].Time.Unix() }
+
+type IotResult struct {
+	Time   time.Time
+	Values []int
+}
+
+func InterestOverTime(keywords ...string) ([]IotResult, error) {
 	token, err := token(MethodInterestOverTime, keywords...)
 	if err != nil {
 		return nil, err
@@ -89,15 +101,16 @@ func InterestOverTime(keywords ...string) (map[time.Time]int, error) {
 		return nil, err
 	}
 
-	res := iotResponse{}
-	if err := json.Unmarshal(body, &res); err != nil {
+	resp := iotResponse{}
+	if err := json.Unmarshal(body, &resp); err != nil {
 		return nil, fmt.Errorf("could not unmarshal response: %v", err)
 	}
+	sort.Sort(resp.Default.Timeline)
 
-	list := map[time.Time]int{}
-	for _, item := range res.Default.Timeline {
-		list[item.Time.Time] = item.Value[0]
+	res := []IotResult{}
+	for _, i := range resp.Default.Timeline {
+		res = append(res, IotResult{i.Time.Time, i.Value})
 	}
 
-	return list, nil
+	return res, nil
 }

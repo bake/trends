@@ -41,7 +41,7 @@ func Get(method string, params url.Values) ([]byte, error) {
 }
 
 func trim(body []byte) []byte {
-	// for some reason the string starts with garbage
+	// the string starts with garbage so it can't be called as jsonp
 	re := regexp.MustCompile("^([^{]+)")
 	return re.ReplaceAll(body, []byte(""))
 }
