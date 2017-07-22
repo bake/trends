@@ -1,6 +1,6 @@
 # trends
 
-Google Trends library for Go. See `trends/main.go` for an example.
+Google Trends library in Go. See [`trends/main.go`](/trends/main.go) for the example below or [trends-http](https://github.com/BakeRolls/trends-http) for an implementation.
 
 ```bash
 $ go get -u github.com/BakeRolls/trends/...
